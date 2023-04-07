@@ -1,0 +1,10 @@
+[Unit]
+Description=Source Search of Art
+
+[Service]
+ExecStart=/root/artsourcesearcherbot/start.sh
+Restart=always
+WorkingDirectory=/root/artsourcesearcherbot
+
+[Install]
+WantedBy=multi-user.target
