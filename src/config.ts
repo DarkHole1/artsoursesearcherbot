@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv'
 import { z } from 'zod'
 
 const RawConfig = z.object({
-    SAGIRI_TOKEN: z.string(),
+    SAGIRI_TOKEN: z.string().nonempty(),
     TELEGRAM_TOKEN: z.string().nonempty()
 })
 type RawConfig = z.infer<typeof RawConfig>
