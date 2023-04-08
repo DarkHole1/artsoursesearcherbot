@@ -37,7 +37,7 @@ bot.on(':photo', async ctx => {
                 break;
             case 'saucenao':
                 const res2 = await client(fs2.createReadStream(path))
-                ctx.reply(`IQDB matches\n${
+                ctx.reply(`SauceNAO matches\n${
                     res2.map(match => `[${match.similarity}%] - ${match.url}`).join('\n')
                 }`)
                 break
