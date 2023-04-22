@@ -24,29 +24,48 @@ bot.on(':photo', ctx => ctx.reply('Select method of searching', {
     reply_markup: new InlineKeyboard().text('IQDB', 'iqdb').text('SauceNAO', 'saucenao')
 }))
 
-// bot.on(':photo', async ctx => {
-//     const processType = ProcessType.parse(ctx.message?.caption)
-//     const file = await ctx.getFile()
-//     const path = await file.download()
-//     try {
-//         console.log(path)
-//         switch(processType) {
-//             case 'iqdb':
-//                 const res = await iqdb.search(fs2.createReadStream(path))
-//                 ctx.reply(`IQDB matches\n${
-//                     res.results.map(match => `${match.match} [${match.similarity}%] - ${match.sources[0].fixedHref}`).join('\n')
-//                 }`)
-//                 break;
-//             case 'saucenao':
-//                 const res2 = await client(fs2.createReadStream(path))
-//                 ctx.reply(`SauceNAO matches\n${
-//                     res2.map(match => `[${match.similarity}%] - ${match.url}`).join('\n')
-//                 }`)
-//                 break
-//         }
-//     } finally {
-//         await fs.unlink(path)
-//     }
-// })
+bot.callbackQuery('iqdb', async ctx => {
+    const message = ctx.callbackQuery.message
+    if (!message || !message.reply_to_message || !message.reply_to_message.photo) {
+        await ctx.answerCallbackQuery('Something went wrong')
+        return
+    }
+    const photos = message.reply_to_message.photo
+    const photo = photos[photos.length - 1]
+
+    await ctx.answerCallbackQuery('Started searching with IQBD')
+
+    const file = await ctx.api.getFile(photo.file_id)
+    const path = await file.download()
+
+    try {
+        const res = await iqdb.search(fs2.createReadStream(path))
+        await ctx.reply(`IQDB matches\n${res.results.map(match => `[${match.similarity}%] - ${match.sources[0].fixedHref}`).join('\n')}`)
+    } finally {
+        await fs.unlink(path)
+    }
+})
+
+bot.callbackQuery('saucenao', async ctx => {
+    const message = ctx.callbackQuery.message
+    if (!message || !message.reply_to_message || !message.reply_to_message.photo) {
+        await ctx.answerCallbackQuery('Something went wrong')
+        return
+    }
+    const photos = message.reply_to_message.photo
+    const photo = photos[photos.length - 1]
+
+    await ctx.answerCallbackQuery('Started searching with SauceNAO')
+
+    const file = await ctx.api.getFile(photo.file_id)
+    const path = await file.download()
+
+    try {
+        const res = await client(fs2.createReadStream(path))
+        await ctx.reply(`SauceNAO matches\n${res.map(match => `[${match.similarity}%] - ${match.url}`).join('\n')}`)
+    } finally {
+        await fs.unlink(path)
+    }
+})
 
 bot.start()
