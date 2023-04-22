@@ -22,9 +22,7 @@ const client = sagiri(config.SAGIRI_TOKEN)
 
 bot.on(':photo', async ctx => {
     const processType = ProcessType.parse(ctx.message?.caption)
-    console.log('File finding')
     const file = await ctx.getFile()
-    console.log(`File`, file)
     const path = await file.download()
     try {
         console.log(path)
