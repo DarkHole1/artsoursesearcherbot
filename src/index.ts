@@ -8,6 +8,8 @@ import * as fs2 from 'node:fs'
 import * as iqdb from '@l2studio/iqdb-api'
 import sagiri from "sagiri"
 
+const LOW_SIMILARITY = 70
+
 const config = new Config()
 const bot = new Bot<FileFlavor<Context>>(config.TELEGRAM_TOKEN)
 
@@ -39,7 +41,16 @@ bot.callbackQuery('iqdb', async ctx => {
 
     try {
         const res = await iqdb.search(fs2.createReadStream(path))
-        await ctx.editMessageText(`IQDB matches\n${res.results.map(match => `[${match.similarity}%] - ${match.sources[0].fixedHref}`).join('\n')}`, {
+        let message = 'IQDB matches\n'
+        message += res.results
+            .filter(match => match.similarity >= LOW_SIMILARITY)
+            .map(match => `[${match.similarity}%] - ${match.sources[0].fixedHref}`)
+            .join('\n')
+        if(res.results.some(match => match.similarity < LOW_SIMILARITY)) {
+            message += '\nLow similarity results hidden'
+        }
+
+        await ctx.editMessageText(message, {
             reply_markup: backKeyboard
         })
     } finally {
@@ -63,7 +74,14 @@ bot.callbackQuery('saucenao', async ctx => {
 
     try {
         const res = await client(fs2.createReadStream(path))
-        await ctx.editMessageText(`SauceNAO matches\n${res.map(match => `[${match.similarity}%] - ${match.url}`).join('\n')}`, {
+        let message = 'SauceNAO matches\n'
+        message += res
+            .filter(match => match.similarity >= LOW_SIMILARITY)
+            .map(match => `[${match.similarity}%] - ${match.url}`).join('\n')
+        if(res.some(match => match.similarity < LOW_SIMILARITY)) {
+            message += '\nLow similarity results hidden'
+        }
+        await ctx.editMessageText(message, {
             reply_markup: backKeyboard
         })
     } finally {
