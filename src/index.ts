@@ -16,8 +16,11 @@ bot.use(autoQuote)
 
 const client = sagiri(config.SAGIRI_TOKEN)
 
+const backKeyboard = new InlineKeyboard().text('Back', 'back')
+const selectKeyboard = new InlineKeyboard().text('IQDB', 'iqdb').text('SauceNAO', 'saucenao')
+
 bot.on(':photo', ctx => ctx.reply('Select method of searching', {
-    reply_markup: new InlineKeyboard().text('IQDB', 'iqdb').text('SauceNAO', 'saucenao')
+    reply_markup: selectKeyboard
 }))
 
 bot.callbackQuery('iqdb', async ctx => {
@@ -36,7 +39,9 @@ bot.callbackQuery('iqdb', async ctx => {
 
     try {
         const res = await iqdb.search(fs2.createReadStream(path))
-        await ctx.editMessageText(`IQDB matches\n${res.results.map(match => `[${match.similarity}%] - ${match.sources[0].fixedHref}`).join('\n')}`)
+        await ctx.editMessageText(`IQDB matches\n${res.results.map(match => `[${match.similarity}%] - ${match.sources[0].fixedHref}`).join('\n')}`, {
+            reply_markup: backKeyboard
+        })
     } finally {
         await fs.unlink(path)
     }
@@ -58,10 +63,16 @@ bot.callbackQuery('saucenao', async ctx => {
 
     try {
         const res = await client(fs2.createReadStream(path))
-        await ctx.editMessageText(`SauceNAO matches\n${res.map(match => `[${match.similarity}%] - ${match.url}`).join('\n')}`)
+        await ctx.editMessageText(`SauceNAO matches\n${res.map(match => `[${match.similarity}%] - ${match.url}`).join('\n')}`, {
+            reply_markup: backKeyboard
+        })
     } finally {
         await fs.unlink(path)
     }
 })
+
+bot.callbackQuery('back', ctx => ctx.editMessageText('Select method of searching', {
+    reply_markup: selectKeyboard
+}))
 
 bot.start()
