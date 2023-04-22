@@ -8,10 +8,6 @@ import * as fs2 from 'node:fs'
 import * as iqdb from '@l2studio/iqdb-api'
 import sagiri from "sagiri"
 
-const ProcessType = z.enum(['iqdb', 'saucenao']).catch('iqdb')
-type ProcessType = z.infer<typeof ProcessType>
-
-
 const config = new Config()
 const bot = new Bot<FileFlavor<Context>>(config.TELEGRAM_TOKEN)
 
