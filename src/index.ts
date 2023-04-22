@@ -1,5 +1,5 @@
 import { autoQuote } from "@roziscoding/grammy-autoquote";
-import { Bot, Context } from "grammy"
+import { Bot, Context, InlineKeyboard } from "grammy"
 import { z } from "zod"
 import { Config } from "./config"
 import { FileFlavor, hydrateFiles } from "@grammyjs/files"
@@ -20,29 +20,34 @@ bot.use(autoQuote)
 
 const client = sagiri(config.SAGIRI_TOKEN)
 
-bot.on(':photo', async ctx => {
-    const processType = ProcessType.parse(ctx.message?.caption)
-    const file = await ctx.getFile()
-    const path = await file.download()
-    try {
-        console.log(path)
-        switch(processType) {
-            case 'iqdb':
-                const res = await iqdb.search(fs2.createReadStream(path))
-                ctx.reply(`IQDB matches\n${
-                    res.results.map(match => `${match.match} [${match.similarity}%] - ${match.sources[0].fixedHref}`).join('\n')
-                }`)
-                break;
-            case 'saucenao':
-                const res2 = await client(fs2.createReadStream(path))
-                ctx.reply(`SauceNAO matches\n${
-                    res2.map(match => `[${match.similarity}%] - ${match.url}`).join('\n')
-                }`)
-                break
-        }
-    } finally {
-        await fs.unlink(path)
-    }
-})
+bot.on(':photo', ctx => ctx.reply('Select method of searching', {
+    reply_to_message_id: ctx.msg.message_id,
+    reply_markup: new InlineKeyboard().text('IQDB', 'iqdb').text('SauceNAO', 'saucenao')
+}))
+
+// bot.on(':photo', async ctx => {
+//     const processType = ProcessType.parse(ctx.message?.caption)
+//     const file = await ctx.getFile()
+//     const path = await file.download()
+//     try {
+//         console.log(path)
+//         switch(processType) {
+//             case 'iqdb':
+//                 const res = await iqdb.search(fs2.createReadStream(path))
+//                 ctx.reply(`IQDB matches\n${
+//                     res.results.map(match => `${match.match} [${match.similarity}%] - ${match.sources[0].fixedHref}`).join('\n')
+//                 }`)
+//                 break;
+//             case 'saucenao':
+//                 const res2 = await client(fs2.createReadStream(path))
+//                 ctx.reply(`SauceNAO matches\n${
+//                     res2.map(match => `[${match.similarity}%] - ${match.url}`).join('\n')
+//                 }`)
+//                 break
+//         }
+//     } finally {
+//         await fs.unlink(path)
+//     }
+// })
 
 bot.start()
