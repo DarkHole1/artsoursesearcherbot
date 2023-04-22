@@ -21,7 +21,6 @@ bot.use(autoQuote)
 const client = sagiri(config.SAGIRI_TOKEN)
 
 bot.on(':photo', ctx => ctx.reply('Select method of searching', {
-    reply_to_message_id: ctx.msg.message_id,
     reply_markup: new InlineKeyboard().text('IQDB', 'iqdb').text('SauceNAO', 'saucenao')
 }))
 
