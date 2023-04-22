@@ -40,7 +40,7 @@ bot.callbackQuery('iqdb', async ctx => {
 
     try {
         const res = await iqdb.search(fs2.createReadStream(path))
-        await ctx.reply(`IQDB matches\n${res.results.map(match => `[${match.similarity}%] - ${match.sources[0].fixedHref}`).join('\n')}`)
+        await ctx.editMessageText(`IQDB matches\n${res.results.map(match => `[${match.similarity}%] - ${match.sources[0].fixedHref}`).join('\n')}`)
     } finally {
         await fs.unlink(path)
     }
@@ -62,7 +62,7 @@ bot.callbackQuery('saucenao', async ctx => {
 
     try {
         const res = await client(fs2.createReadStream(path))
-        await ctx.reply(`SauceNAO matches\n${res.map(match => `[${match.similarity}%] - ${match.url}`).join('\n')}`)
+        await ctx.editMessageText(`SauceNAO matches\n${res.map(match => `[${match.similarity}%] - ${match.url}`).join('\n')}`)
     } finally {
         await fs.unlink(path)
     }
